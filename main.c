@@ -1,8 +1,7 @@
 #include "mcu51.h"
 
 #include "uart.h"
-#define LED1 P2_0
-#define LED2 P2_1
+ 
 #define BTNAME "nmk322bt"
 #define BTPASS "0123"
 
