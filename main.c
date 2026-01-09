@@ -131,6 +131,18 @@ void main(void)
         uart_putchar(temp);
         uart_puts("\r\n");
 
+        switch (temp)
+        {
+        case 'A':
+            lcd_cmd(0x80);
+            lcd_str("TEST 1");
+            break;
+        case 'B':
+            lcd_cmd(0x80);
+            lcd_str("TEST 2");
+            break;
+        }
+
         // for(t=0; t<250; t++) {
         //     servo_0deg();
 
