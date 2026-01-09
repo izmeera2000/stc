@@ -103,10 +103,12 @@ void main(void) {
     lcd_str("MASA MAKAN");
 
     while(1) {
+		temp = uart_read();
 
         uart_puts("RX = ");
 uart_putchar(temp);
 uart_puts("\r\n");
+
        
         // for(t=0; t<250; t++) {
         //     servo_0deg();
