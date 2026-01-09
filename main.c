@@ -95,11 +95,11 @@ void main(void) {
 	uart_puts("AT+PIN" BTPASS "\r\n");
 	for (loop=0;loop<60000;loop++);
 
-    lcd_init();
-    lcd_cmd(0x80);
-    lcd_str("PET FEEDER");
-    lcd_cmd(0xC0);
-    lcd_str("MASA MAKAN");
+    // lcd_init();
+    // lcd_cmd(0x80);
+    // lcd_str("PET FEEDER");
+    // lcd_cmd(0xC0);
+    // lcd_str("MASA MAKAN");
 
     while(1) {
 		temp = uart_read();
