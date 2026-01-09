@@ -1,6 +1,7 @@
 #include "mcu51.h"
-
 #include "uart.h"
+#include "timer2stc.h"
+
  
 #define BTNAME "nmk322bt"
 #define BTPASS "0123"
@@ -84,12 +85,12 @@ void servo_180deg(void) {
 }
 
 void main(void) {
-    unsigned int t;
-
+ 
     	unsigned char temp;
 	unsigned int loop;
-	uart_init();
-	// cuba ubah nama bt module
+    uart_init();        
+    timer2_init();      	
+    // cuba ubah nama bt module
 	uart_puts("AT+NAME" BTNAME "\r\n");
 	for (loop=0;loop<60000;loop++);
 	uart_puts("AT+PIN" BTPASS "\r\n");
