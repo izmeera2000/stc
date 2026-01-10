@@ -1,9 +1,36 @@
 #include "mcu51.h"
 #include "uart.h"
 #include "timer2stc.h"
+#include "timer.h"
 
 #define BTNAME "nmk322bt"
 #define BTPASS "0123"
+
+
+
+#define STEP_COUNT_1S 20
+#define ALARM_ON_TIME 10
+unsigned char step, hour, ssec, mmin;
+struct _alarm_t
+{
+	unsigned char mmin, hour;
+	unsigned char time; // on time
+};
+struct _alarm_t alarm1;
+struct _alarm_t alarm2;
+struct _alarm_t alarm3;
+unsigned char alarm_time(struct _alarm_t *pt)
+{
+	if (ssec == 0 && hour == pt->hour && mmin == pt->mmin)
+	{
+		pt->time = ALARM_ON_TIME;
+	}
+	return pt->time;
+}
+
+_sbit(ALARM, P1 ^ 0);
+
+
 
 sbit SERVO = P1 ^ 1;
 sbit RS = P2 ^ 0;
@@ -12,6 +39,30 @@ sbit D4 = P2 ^ 2;
 sbit D5 = P2 ^ 3;
 sbit D6 = P2 ^ 4;
 sbit D7 = P2 ^ 5;
+
+
+void show_time(void)
+{
+	uart_puts("TIME>");
+	uart_send((hour / 10) + 0x30);
+	uart_send((hour % 10) + 0x30);
+	uart_send(':');
+	uart_send((mmin / 10) + 0x30);
+	uart_send((mmin % 10) + 0x30);
+	uart_send(':');
+	uart_send((ssec / 10) + 0x30);
+	uart_send((ssec % 10) + 0x30);
+	uart_puts("\r\n");
+}
+void t0_handler(void) _intr(TF0_VECTOR)
+{
+	TH0 = 0x4b;
+	TL0 = 0xfd; // 50ms timer
+	if (step)
+		step--;
+}
+
+
 
 void delay_ms(unsigned int ms)
 {
@@ -109,6 +160,8 @@ void main(void)
     P2 = 0x00;
     lcd_init();
     uart_init();
+	timer_init();
+
     timer2_init();
 
     // cuba ubah nama bt module

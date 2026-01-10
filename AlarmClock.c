@@ -43,6 +43,9 @@ void t0_handler(void) _intr(TF0_VECTOR)
 		step--;
 }
 
+
+
+
 void main(void)
 {
 	unsigned char buff[8];
