@@ -131,21 +131,27 @@ void main(void)
         uart_putchar(temp);
         uart_puts("\r\n");
 
-        switch (temp)
-        {
-        case 'A':
-            lcd_cmd(0x80);
-            lcd_str("TEST 1");
-            uart_puts("TEST 1");
+        lcd_cmd(0x01); // clear LCD
+        delay_ms(2);
 
-            break;
-        case 'B':
-            lcd_cmd(0x80);
-            lcd_str("TEST 2");
-            uart_puts("TEST 1");
+        lcd_str("RX = ");
+        lcd_write(temp);
 
-            break;
-        }
+        // switch (temp)
+        // {
+        // case 'A':
+        //     lcd_cmd(0x80);
+        //     lcd_str("TEST 1");
+        //     uart_puts("TEST 1");
+
+        //     break;
+        // case 'B':
+        //     lcd_cmd(0x80);
+        //     lcd_str("TEST 2");
+        //     uart_puts("TEST 1");
+
+        //     break;
+        // }
 
         // for(t=0; t<250; t++) {
         //     servo_0deg();
