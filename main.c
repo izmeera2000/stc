@@ -106,9 +106,9 @@ void main(void)
 
     unsigned char temp;
     unsigned int loop;
+    lcd_init();
     uart_init();
     timer2_init();
-    lcd_init();
 
     // cuba ubah nama bt module
     uart_puts("AT+NAME" BTNAME "\r\n");
@@ -136,10 +136,14 @@ void main(void)
         case 'A':
             lcd_cmd(0x80);
             lcd_str("TEST 1");
+            uart_puts("TEST 1");
+
             break;
         case 'B':
             lcd_cmd(0x80);
             lcd_str("TEST 2");
+            uart_puts("TEST 1");
+
             break;
         }
 
