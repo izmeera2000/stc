@@ -106,6 +106,7 @@ void main(void)
 
     unsigned char temp;
     unsigned int loop;
+    P2 = 0x00;
     lcd_init();
     uart_init();
     timer2_init();
@@ -131,8 +132,9 @@ void main(void)
         uart_putchar(temp);
         uart_puts("\r\n");
 
-        lcd_cmd(0x01); // clear LCD
+        lcd_cmd(0x01);
         delay_ms(2);
+        lcd_cmd(0x80); // first line
 
         lcd_str("RX = ");
         lcd_write(temp);
