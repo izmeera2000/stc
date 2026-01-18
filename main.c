@@ -72,13 +72,7 @@ void uart_write(char c)
     ;
   TI = 0;
 }
-
-char uart_read(void)
-{
-  char c = SBUF;
-  RI = 0;
-  return c;
-}
+ 
 
 // --- SERVO ---
 void servo_buka(void)
