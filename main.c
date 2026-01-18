@@ -242,11 +242,6 @@ void lcd_startup_screen(void)
   lcd_str("START...        ");
   delay_ms(2500);
 
-  lcd_cmd(0x80);
-  lcd_str("PLEASE CONNECT  ");
-  lcd_cmd(0xC0);
-  lcd_str("BLUETOOTH...    ");
-  delay_ms(2500);
 }
 
 void system_startup(void)
