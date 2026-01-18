@@ -495,6 +495,8 @@ void bt_command_task(char c) {
 
       jadwal[n - 1].m = (rx_buffer[4] - '0') * 10 + (rx_buffer[5] - '0');
 
+      jadwal[n - 1].days = (rx_buffer[6] - '0') * 100 +
+                           (rx_buffer[7] - '0') * 10 + (rx_buffer[8] - '0');
       if (jadwal[n - 1].days > DAY_ALL)
         jadwal[n - 1].days = DAY_ALL;
 
