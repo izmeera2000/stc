@@ -5,5 +5,6 @@
   ],
     "C_Cpp.default.compilerPath": "C:/Program Files/SDCC/bin/sdcc.exe",
 
-   "C_Cpp.default.intelliSenseMode": "gcc-x86"
+  "C_Cpp.default.intelliSenseMode": "gcc-x86",
+  "C_Cpp.errorSquiggles": "disabled"
 }

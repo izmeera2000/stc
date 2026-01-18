@@ -22,7 +22,8 @@ sbit D7 = P2 ^ 5;
 #define DAY_SUN (1 << 6)
 #define DAY_ALL 0x7F
 
-struct Schedule {
+struct Schedule
+{
   unsigned char h;
   unsigned char m;
   unsigned char days; // Day mask
@@ -48,38 +49,44 @@ char rx_buffer[12];
 unsigned char rx_index = 0;
 
 // --- DELAYS ---
-void delay_ms(unsigned int ms) {
+void delay_ms(unsigned int ms)
+{
   unsigned int i, j;
   for (i = 0; i < ms; i++)
     for (j = 0; j < 1200; j++)
       ;
 }
 
-void delay_us(unsigned int us) {
+void delay_us(unsigned int us)
+{
   unsigned int i;
   for (i = 0; i < us; i++)
     ;
 }
 
 // --- UART ---
-void uart_write(char c) {
+void uart_write(char c)
+{
   SBUF = c;
   while (TI == 0)
     ;
   TI = 0;
 }
 
-char uart_read(void) {
+char uart_read(void)
+{
   char c = SBUF;
   RI = 0;
   return c;
 }
 
 // --- SERVO ---
-void servo_buka(void) {
+void servo_buka(void)
+{
   unsigned char i;
   ET0 = 0;
-  for (i = 0; i < 15; i++) {
+  for (i = 0; i < 15; i++)
+  {
     SERVO = 1;
     delay_ms(2);
     SERVO = 0;
@@ -88,10 +95,12 @@ void servo_buka(void) {
   ET0 = 1;
 }
 
-void servo_tutup(void) {
+void servo_tutup(void)
+{
   unsigned char i;
   ET0 = 0;
-  for (i = 0; i < 15; i++) {
+  for (i = 0; i < 15; i++)
+  {
     SERVO = 1;
     delay_ms(1);
     SERVO = 0;
@@ -101,14 +110,16 @@ void servo_tutup(void) {
 }
 
 // --- LCD ---
-void lcd_pulse(void) {
+void lcd_pulse(void)
+{
   E = 1;
   delay_us(50);
   E = 0;
   delay_us(50);
 }
 
-void lcd_nibble(unsigned char n) {
+void lcd_nibble(unsigned char n)
+{
   D4 = n & 1;
   D5 = (n >> 1) & 1;
   D6 = (n >> 2) & 1;
@@ -116,26 +127,30 @@ void lcd_nibble(unsigned char n) {
   lcd_pulse();
 }
 
-void lcd_cmd(unsigned char c) {
+void lcd_cmd(unsigned char c)
+{
   RS = 0;
   lcd_nibble(c >> 4);
   lcd_nibble(c & 0x0F);
   delay_ms(2);
 }
 
-void lcd_write(unsigned char c) {
+void lcd_write(unsigned char c)
+{
   RS = 1;
   lcd_nibble(c >> 4);
   lcd_nibble(c & 0x0F);
   delay_ms(1);
 }
 
-void lcd_str(char *s) {
+void lcd_str(char *s)
+{
   while (*s)
     lcd_write(*s++);
 }
 
-void lcd_init(void) {
+void lcd_init(void)
+{
   delay_ms(50);
   RS = 0;
   lcd_nibble(3);
@@ -153,7 +168,8 @@ void lcd_init(void) {
 }
 
 // --- SHOW TIME AND DAY ---
-void lcd_show_time(void) {
+void lcd_show_time(void)
+{
   char buf[9];
   buf[0] = (hour / 10) + '0';
   buf[1] = (hour % 10) + '0';
@@ -174,7 +190,8 @@ void lcd_show_time(void) {
   lcd_str(day_names[day_of_week]);
 }
 
-void uart_show_time(void) {
+void uart_show_time(void)
+{
   uart_puts("Time: ");
 
   uart_write((hour / 10) + '0');
@@ -193,8 +210,10 @@ void uart_show_time(void) {
   uart_puts("\r\n");
 }
 
-void uart_print_days(unsigned char mask) {
-  if (mask == DAY_ALL) {
+void uart_print_days(unsigned char mask)
+{
+  if (mask == DAY_ALL)
+  {
     uart_puts("Daily");
     return;
   }
@@ -216,7 +235,8 @@ void uart_print_days(unsigned char mask) {
 }
 
 // --- TIMER0 ---
-void timer0_init(void) {
+void timer0_init(void)
+{
   TMOD |= 0x01;
   TH0 = 0x4C;
   TL0 = 0x00;
@@ -225,7 +245,8 @@ void timer0_init(void) {
   TR0 = 1;
 }
 
-void timer0_isr(void) interrupt 1 {
+void timer0_isr(void) interrupt 1
+{
   TH0 = 0x4C;
   TL0 = 0x00;
 
@@ -233,18 +254,22 @@ void timer0_isr(void) interrupt 1 {
     return;
 
   step_counter++;
-  if (step_counter >= 20) {
+  if (step_counter >= 20)
+  {
     step_counter = 0;
     ssec++;
     update_lcd = 1;
 
-    if (ssec >= 60) {
+    if (ssec >= 60)
+    {
       ssec = 0;
       mmin++;
-      if (mmin >= 60) {
+      if (mmin >= 60)
+      {
         mmin = 0;
         hour++;
-        if (hour >= 24) {
+        if (hour >= 24)
+        {
           hour = 0;
           day_of_week++;
           if (day_of_week >= 7)
@@ -256,7 +281,8 @@ void timer0_isr(void) interrupt 1 {
 }
 
 // --- BLUETOOTH ---
-void bluetooth_init(void) {
+void bluetooth_init(void)
+{
   unsigned int loop;
   uart_puts("AT+NAME" BTNAME "\r\n");
   for (loop = 0; loop < 60000; loop++)
@@ -267,7 +293,8 @@ void bluetooth_init(void) {
 }
 
 // --- STARTUP ---
-void lcd_startup_screen(void) {
+void lcd_startup_screen(void)
+{
   lcd_cmd(0x80);
   lcd_str("PET FEEDER      ");
   lcd_cmd(0xC0);
@@ -287,7 +314,8 @@ void lcd_startup_screen(void) {
   lcd_str("      24Hrs       ");
 }
 
-void system_startup(void) {
+void system_startup(void)
+{
   uart_init();
   timer0_init();
   lcd_init();
@@ -297,7 +325,8 @@ void system_startup(void) {
 }
 
 // --- AUTO FEED ---
-void auto_feed_task(void) {
+void auto_feed_task(void)
+{
   unsigned char i;
   if (!is_time_set || !update_lcd)
     return;
@@ -315,9 +344,11 @@ void auto_feed_task(void) {
 
   fed_this_minute = 1;
 
-  for (i = 0; i < total_jadual; i++) {
+  for (i = 0; i < total_jadual; i++)
+  {
     if (jadwal[i].a && hour == jadwal[i].h && mmin == jadwal[i].m &&
-        (jadwal[i].days & (1 << day_of_week))) {
+        (jadwal[i].days & (1 << day_of_week)))
+    {
       lcd_cmd(0xC0);
       lcd_str(" AUTO: MAKAN!    ");
       servo_buka();
@@ -330,7 +361,8 @@ void auto_feed_task(void) {
 }
 
 // --- MANUAL FEED ---
-void bt_manual_feed(void) {
+void bt_manual_feed(void)
+{
   lcd_cmd(0xC0);
   lcd_str("  MANUAL FEED...  ");
   servo_buka();
@@ -340,10 +372,11 @@ void bt_manual_feed(void) {
   lcd_str("  STATUS: READY   ");
 }
 
-// --- SET TIME VIA BT ---
-void bt_set_time(char c) {
+void bt_set_time(char c)
+{
 
-  if (c == 't' || c == 'T') {
+  if (c == 't' || c == 'T')
+  {
     rx_index = 0;
     rx_buffer[rx_index++] = c;
     return;
@@ -352,74 +385,85 @@ void bt_set_time(char c) {
   if (rx_index == 0)
     return;
 
-  if (rx_index >= sizeof(rx_buffer)) {
+  if (rx_index >= sizeof(rx_buffer))
+  {
     rx_index = 0;
     return;
   }
 
+  // Accept digits only after 't'
+  if (rx_index > 1)
+  {
+    if (c < '0' || c > '9')
+    {
+      rx_index = 0;
+      return;
+    }
+  }
+
   rx_buffer[rx_index++] = c;
 
-  // Expected command format: tHHMMSSD
-  // t      = command
-  // HH     = hour (00-23)
-  // MM     = minute (00-59)
-  // SS     = second (00-59)
-  // D      = day of week (0=Mon, 6=Sun)
-
   if (rx_index == 8)
-
   {
+
     hour = (rx_buffer[1] - '0') * 10 + (rx_buffer[2] - '0');
     mmin = (rx_buffer[3] - '0') * 10 + (rx_buffer[4] - '0');
     ssec = (rx_buffer[5] - '0') * 10 + (rx_buffer[6] - '0');
     day_of_week = rx_buffer[7] - '0';
 
-    if (hour > 23)
-      hour = 0;
-    if (mmin > 59)
-      mmin = 0;
-    if (ssec > 59)
-      ssec = 0;
-    if (day_of_week > 6)
-      day_of_week = 0;
+    if (hour > 23 || mmin > 59 || ssec > 59 || day_of_week > 6)
+    {
+      uart_puts("TIME ERR\r\n");
+      rx_index = 0;
+      return;
+    }
 
     is_time_set = 1;
+
     lcd_cmd(0x01);
     lcd_cmd(0x80);
     lcd_str("TIME UPDATED!");
-    delay_ms(1000);
+    uart_puts("TIME OK\r\n");
+
+    delay_ms(800);
     lcd_cmd(0x01);
+
     rx_index = 0;
   }
 }
-
 // --- BT COMMAND HANDLER ---
-void bt_command_task(char c) {
+void bt_command_task(char c)
+{
   unsigned char i;
   char str_time[6];
 
-  if (c == 'm' || c == 'M') {
+  if (c == 'm' || c == 'M')
+  {
     bt_manual_feed();
     return;
   }
 
-  if (c == 'l' || c == 'L') {
+  if (c == 'l' || c == 'L')
+  {
     // lcd_show_time();
     uart_show_time();
     return;
   }
 
-  if (c == 't' || c == 'T') {
+  if (c == 't' || c == 'T')
+  {
     bt_set_time(c);
   }
 
-  if (c == 's' || c == 'S') {
+  if (c == 's' || c == 'S')
+  {
 
     uart_puts("Active Schedule: ");
     uart_write(total_jadual + '0');
     uart_puts("\r\n");
 
-    for (i = 0; i < total_jadual; i++) {
+    for (i = 0; i < total_jadual; i++)
+    {
       uart_write(i + 1 + '0');
       uart_puts(" [");
 
@@ -446,7 +490,8 @@ void bt_command_task(char c) {
     return;
   }
 
-  if (c == 'f' || c == 'F' || c == 'c' || c == 'C') {
+  if (c == 'f' || c == 'F' || c == 'c' || c == 'C')
+  {
     rx_index = 0;
     rx_buffer[rx_index++] = c;
     return;
@@ -487,10 +532,12 @@ void bt_command_task(char c) {
   // - Send ASCII only, no spaces or line endings.
   // - Use 's' command to list all active schedules.
 
-  if ((rx_buffer[0] == 'f' || rx_buffer[0] == 'F') && rx_index == 9) {
+  if ((rx_buffer[0] == 'f' || rx_buffer[0] == 'F') && rx_index == 9)
+  {
     unsigned char n = rx_buffer[1] - '0';
 
-    if (n >= 1 && n <= MAX_JADUAL) {
+    if (n >= 1 && n <= MAX_JADUAL)
+    {
       jadwal[n - 1].h = (rx_buffer[2] - '0') * 10 + (rx_buffer[3] - '0');
 
       jadwal[n - 1].m = (rx_buffer[4] - '0') * 10 + (rx_buffer[5] - '0');
@@ -512,9 +559,11 @@ void bt_command_task(char c) {
   }
 
   // SET TOTAL COUNT
-  else if ((rx_buffer[0] == 'c' || rx_buffer[0] == 'C') && rx_index == 2) {
+  else if ((rx_buffer[0] == 'c' || rx_buffer[0] == 'C') && rx_index == 2)
+  {
     unsigned char new_count = rx_buffer[1] - '0';
-    if (new_count >= 1 && new_count <= MAX_JADUAL) {
+    if (new_count >= 1 && new_count <= MAX_JADUAL)
+    {
       total_jadual = new_count;
       uart_puts("Total Schedule: ");
       uart_write(total_jadual + '0');
@@ -525,14 +574,17 @@ void bt_command_task(char c) {
 }
 
 // --- MAIN ---
-void main(void) {
+void main(void)
+{
   char rx;
   system_startup();
 
-  while (1) {
+  while (1)
+  {
     auto_feed_task();
 
-    if (RI) {
+    if (RI)
+    {
       rx = uart_read();
 
       if (!is_time_set)
