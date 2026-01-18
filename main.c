@@ -13,15 +13,7 @@ sbit D5 = P2 ^ 3;
 sbit D6 = P2 ^ 4;
 sbit D7 = P2 ^ 5;
 
-#define DAY_MON (1 << 0)
-#define DAY_TUE (1 << 1)
-#define DAY_WED (1 << 2)
-#define DAY_THU (1 << 3)
-#define DAY_FRI (1 << 4)
-#define DAY_SAT (1 << 5)
-#define DAY_SUN (1 << 6)
-#define DAY_ALL 0x7F
-
+ 
 struct Schedule
 {
   unsigned char h;
@@ -30,11 +22,8 @@ struct Schedule
   unsigned char a;    // active flag
 };
 
-struct Schedule jadwal[MAX_JADUAL] = {{8, 0, DAY_ALL, 1},
-                                      {13, 30, DAY_MON | DAY_WED | DAY_FRI, 1},
-                                      {20, 0, DAY_ALL, 1},
-                                      {0, 0, 0, 0},
-                                      {0, 0, 0, 0}};
+struct Schedule jadwal[MAX_JADUAL] = {{8, 0, 0x7F, 1}, {13, 30, 0x15, 1}, {20, 0, 0x7F, 1}};
+
 
 unsigned char total_jadual = 3;
 unsigned char hour = 0, mmin = 0, ssec = 0;
@@ -162,50 +151,28 @@ void lcd_init(void)
 // --- SHOW TIME AND DAY ---
 void lcd_show_time(void)
 {
-    /* Line 1: Time */
     lcd_cmd(0x80);
-    lcd_str("TIME: ");
-
     lcd_write((hour / 10) + '0');
     lcd_write((hour % 10) + '0');
-    lcd_write(':');
-
     lcd_write((mmin / 10) + '0');
     lcd_write((mmin % 10) + '0');
-    lcd_write(':');
-
     lcd_write((ssec / 10) + '0');
     lcd_write((ssec % 10) + '0');
-
-    lcd_str("  ");   // clear leftover chars
-
-    /* Line 2: Day */
     lcd_cmd(0xC0);
-    lcd_str("DAY: ");
-
     lcd_write(day_of_week + '0');
-    lcd_str("   ");  // clear leftovers
 }
 
 
 void uart_show_time(void)
 {
-  uart_puts("Time: ");
-
-  uart_write((hour / 10) + '0');
-  uart_write((hour % 10) + '0');
-  uart_write(':');
-
-  uart_write((mmin / 10) + '0');
-  uart_write((mmin % 10) + '0');
-  uart_write(':');
-
-  uart_write((ssec / 10) + '0');
-  uart_write((ssec % 10) + '0');
-
-  uart_puts("  Day: ");
-  uart_write(day_of_week + '0');
-  uart_puts("\r\n");
+    uart_write((hour / 10) + '0');
+    uart_write((hour % 10) + '0');
+    uart_write((mmin / 10) + '0');
+    uart_write((mmin % 10) + '0');
+    uart_write((ssec / 10) + '0');
+    uart_write((ssec % 10) + '0');
+    uart_write(day_of_week + '0');
+    uart_write('\n');
 }
 
 // --- TIMER0 ---
@@ -298,39 +265,25 @@ void system_startup(void)
   lcd_startup_screen();
 }
 
-// --- AUTO FEED ---
+// --- Auto feed ---
 void auto_feed_task(void)
 {
-  unsigned char i;
-  if (!is_time_set || !update_lcd)
-    return;
-
-  update_lcd = 0;
-  lcd_show_time();
-  fed_this_minute = 0;
-
-  if (ssec == 1)
-    fed_this_minute = 0;
-
-  if (ssec != 0 || fed_this_minute)
-    return;
-
-  fed_this_minute = 1;
-
-  for (i = 0; i < total_jadual; i++)
-  {
-    if (jadwal[i].a && hour == jadwal[i].h && mmin == jadwal[i].m &&
-        (jadwal[i].days & (1 << day_of_week)))
+    unsigned char i;
+    if (!is_time_set || !update_lcd)
+        return;
+    update_lcd = 0;
+    lcd_show_time();
+    if (ssec != 0 || fed_min)
+        return;
+    fed_min = 1;
+    for (i = 0; i < total_jadual; i++)
     {
-      lcd_cmd(0xC0);
-      lcd_str(" AUTO: MAKAN!    ");
-      servo_buka();
-      servo_tutup();
-      uart_puts("Feed Done\r\n");
-      lcd_cmd(0xC0);
-      lcd_str(" AUTO: SELESAI   ");
+        if (jadwal[i].a && hour == jadwal[i].h && mmin == jadwal[i].m && (jadwal[i].days & (1 << day_of_week)))
+        {
+            servo_buka();
+            servo_tutup();
+        }
     }
-  }
 }
 
 // --- MANUAL FEED ---
@@ -491,8 +444,8 @@ void bt_command_task(char c)
 
       jadwal[n - 1].days = (rx_buffer[6] - '0') * 100 +
                            (rx_buffer[7] - '0') * 10 + (rx_buffer[8] - '0');
-      if (jadwal[n - 1].days > DAY_ALL)
-        jadwal[n - 1].days = DAY_ALL;
+      if (jadwal[n - 1].days > 127)
+        jadwal[n - 1].days = 127;
 
       jadwal[n - 1].a = 1;
 
