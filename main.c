@@ -177,9 +177,14 @@ void lcd_show_time(void)
   lcd_str("Time: ");
   lcd_str(buf);
 
+  lcd_str(cbuf);
   lcd_cmd(0xC0);
   lcd_str("Day: ");
-  lcd_str(day_of_week);
+
+  char cbuf[2];
+  cbuf[0] = day_of_week + '0';
+  cbuf[1] = '\0';
+  lcd_str(cbuf);
 }
 
 void uart_show_time(void)
@@ -446,7 +451,10 @@ void bt_command_task(char c)
 
       // 🔹 SHOW DAYS HERE
       uart_puts("(");
-      uart_write(jadwal[i].days);
+      unsigned char d = jadwal[i].days;
+      uart_write((d / 100) + '0');        
+      uart_write(((d / 10) % 10) + '0');  
+      uart_write((d % 10) + '0');         
 
       uart_puts(") - ");
 
