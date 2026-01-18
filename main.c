@@ -211,6 +211,24 @@ void uart_show_time(void)
     uart_puts("\r\n");
 }
 
+void uart_print_days(unsigned char mask)
+{
+    if (mask == DAY_ALL)
+    {
+        uart_puts("Daily");
+        return;
+    }
+
+    if (mask & DAY_MON) uart_puts("Mon ");
+    if (mask & DAY_TUE) uart_puts("Tue ");
+    if (mask & DAY_WED) uart_puts("Wed ");
+    if (mask & DAY_THU) uart_puts("Thu ");
+    if (mask & DAY_FRI) uart_puts("Fri ");
+    if (mask & DAY_SAT) uart_puts("Sat ");
+    if (mask & DAY_SUN) uart_puts("Sun ");
+}
+
+
 // --- TIMER0 ---
 void timer0_init(void)
 {
@@ -435,7 +453,12 @@ void bt_command_task(char c)
             str_time[5] = '\0';
 
             uart_puts(str_time);
-            uart_puts("] - ");
+            uart_puts("] ");
+
+            // 🔹 SHOW DAYS HERE
+            uart_puts("(");
+            uart_print_days(jadwal[i].days);
+            uart_puts(") - ");
 
             if (hour > jadwal[i].h ||
                 (hour == jadwal[i].h && mmin >= jadwal[i].m))
