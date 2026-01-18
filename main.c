@@ -247,12 +247,6 @@ void lcd_startup_screen(void)
   lcd_cmd(0xC0);
   lcd_str("BLUETOOTH...    ");
   delay_ms(2500);
-
-  lcd_cmd(0x01);
-  lcd_cmd(0x80);
-  lcd_str("  SET TIME NOW:   ");
-  lcd_cmd(0xC0);
-  lcd_str("      24Hrs       ");
 }
 
 void system_startup(void)
