@@ -50,6 +50,10 @@ bit is_time_set = 0;
 unsigned char day_of_week = 0;
 /* 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun */
 
+// Array for day names
+const char *day_names[7] = {
+    "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
 char rx_buffer[10];
 unsigned char rx_index = 0;
 
@@ -315,11 +319,17 @@ void bt_set_initial_time(char c)
 
     rx_buffer[rx_index++] = c;
 
-    if (rx_index == 7)
+    // Expect 8 bytes now: t H H M M S S D
+    if (rx_index == 8)
     {
         hour = (rx_buffer[1] - '0') * 10 + (rx_buffer[2] - '0');
         mmin = (rx_buffer[3] - '0') * 10 + (rx_buffer[4] - '0');
         ssec = (rx_buffer[5] - '0') * 10 + (rx_buffer[6] - '0');
+        day_of_week = rx_buffer[7] - '0'; // 0=Mon, 6=Sun
+
+        // Sanity check day
+        if (day_of_week > 6)
+            day_of_week = 0;
 
         is_time_set = 1;
 
@@ -331,6 +341,31 @@ void bt_set_initial_time(char c)
 
         rx_index = 0;
     }
+}
+
+// Display time and day on LCD
+void lcd_show_time_with_day(void)
+{
+    char buf[9]; // HH:MM:SS
+
+    // Format time as HH:MM:SS
+    buf[0] = (hour / 10) + '0';
+    buf[1] = (hour % 10) + '0';
+    buf[2] = ':';
+    buf[3] = (mmin / 10) + '0';
+    buf[4] = (mmin % 10) + '0';
+    buf[5] = ':';
+    buf[6] = (ssec / 10) + '0';
+    buf[7] = (ssec % 10) + '0';
+    buf[8] = '\0';
+
+    lcd_cmd(0x80); // First line
+    lcd_str("Time: ");
+    lcd_str(buf);
+
+    lcd_cmd(0xC0); // Second line
+    lcd_str("Day: ");
+    lcd_str(day_names[day_of_week]);
 }
 
 void bt_manual_feed(void)
@@ -357,6 +392,13 @@ void bt_command_task(char c)
     {
         bt_manual_feed();
         return;
+    }
+
+    if (c == 'l' || c == 'L')
+    {
+        lcd_show_time();
+                return;
+
     }
 
     /* Show status */
