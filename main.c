@@ -13,26 +13,42 @@ sbit D5 = P2 ^ 3;
 sbit D6 = P2 ^ 4;
 sbit D7 = P2 ^ 5;
 
+/* Day mask (bit-based) */
+#define DAY_MON (1 << 0)
+#define DAY_TUE (1 << 1)
+#define DAY_WED (1 << 2)
+#define DAY_THU (1 << 3)
+#define DAY_FRI (1 << 4)
+#define DAY_SAT (1 << 5)
+#define DAY_SUN (1 << 6)
+#define DAY_ALL 0x7F
+
 // --- STRUKTUR JADUAL ---
 struct Schedule
 {
     unsigned char h;
     unsigned char m;
+    unsigned char days; // Day mask
+
     unsigned char a;
 };
 
-struct Schedule jadwal[MAX_JADUAL] = {
-    {8, 00, 1},
-    {13, 30, 1},
-    {20, 00, 1},
-    {0, 0, 0},
-    {0, 0, 0}};
+struct Schedule jadwal[MAX_JADUAL] =
+    {
+        {8, 0, DAY_ALL, 1},                       // Daily 08:00
+        {13, 30, DAY_MON | DAY_WED | DAY_FRI, 1}, // Mon/Wed/Fri 13:30
+        {20, 0, DAY_SAT | DAY_SUN, 1},            // Weekend 20:00
+        {0, 0, 0, 0},
+        {0, 0, 0, 0}};
 
 unsigned char total_jadual = 3;
 unsigned char hour = 0, mmin = 0, ssec = 0;
 unsigned char step_counter;
 bit update_lcd = 0;
 bit is_time_set = 0;
+
+unsigned char day_of_week = 0;
+/* 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun */
 
 char rx_buffer[10];
 unsigned char rx_index = 0;
@@ -172,6 +188,7 @@ void timer0_isr(void) interrupt 1
 {
     TH0 = 0x4C;
     TL0 = 0x00;
+
     if (is_time_set == 1)
     {
         step_counter++;
@@ -180,6 +197,7 @@ void timer0_isr(void) interrupt 1
             step_counter = 0;
             ssec++;
             update_lcd = 1;
+
             if (ssec >= 60)
             {
                 ssec = 0;
@@ -188,8 +206,16 @@ void timer0_isr(void) interrupt 1
                 {
                     mmin = 0;
                     hour++;
+
+                    // --- 0000: INCREMENT DAY ---
                     if (hour >= 24)
+                    {
                         hour = 0;
+
+                        day_of_week++;
+                        if (day_of_week >= 7)
+                            day_of_week = 0;
+                    }
                 }
             }
         }
@@ -258,7 +284,8 @@ void auto_feed_task(void)
     {
         if (jadwal[i].a &&
             hour == jadwal[i].h &&
-            mmin == jadwal[i].m)
+            mmin == jadwal[i].m &&
+            (jadwal[i].days & (1 << day_of_week)))
         {
             lcd_cmd(0xC0);
             lcd_str(" AUTO: MAKAN!    ");
@@ -426,14 +453,8 @@ void bt_command_task(char c)
     }
 }
 
-
-
-
 void main(void)
 {
-    unsigned char i;
-    char temp_char;
-    char str_time[6];
     char rx;
 
     system_startup();
