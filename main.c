@@ -44,8 +44,6 @@ bit is_time_set = 0;
 unsigned char day_of_week = 0;
 bit fed_this_minute = 0;
 
-const char *day_names[7] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-
 char rx_buffer[12];
 unsigned char rx_index = 0;
 
@@ -181,7 +179,7 @@ void lcd_show_time(void)
 
   lcd_cmd(0xC0);
   lcd_str("Day: ");
-  lcd_str(day_names[day_of_week]);
+  lcd_str(day_of_week);
 }
 
 void uart_show_time(void)
@@ -200,32 +198,8 @@ void uart_show_time(void)
   uart_write((ssec % 10) + '0');
 
   uart_puts("  Day: ");
-  uart_puts(day_names[day_of_week]);
+  uart_puts(day_of_week);
   uart_puts("\r\n");
-}
-
-void uart_print_days(unsigned char mask)
-{
-  if (mask == DAY_ALL)
-  {
-    uart_puts("Daily");
-    return;
-  }
-
-  if (mask & DAY_MON)
-    uart_puts("Mon ");
-  if (mask & DAY_TUE)
-    uart_puts("Tue ");
-  if (mask & DAY_WED)
-    uart_puts("Wed ");
-  if (mask & DAY_THU)
-    uart_puts("Thu ");
-  if (mask & DAY_FRI)
-    uart_puts("Fri ");
-  if (mask & DAY_SAT)
-    uart_puts("Sat ");
-  if (mask & DAY_SUN)
-    uart_puts("Sun ");
 }
 
 // --- TIMER0 ---
@@ -472,7 +446,8 @@ void bt_command_task(char c)
 
       // 🔹 SHOW DAYS HERE
       uart_puts("(");
-      uart_print_days(jadwal[i].days);
+      uart_write(jadwal[i].days);
+
       uart_puts(") - ");
 
       if (hour > jadwal[i].h || (hour == jadwal[i].h && mmin >= jadwal[i].m))
