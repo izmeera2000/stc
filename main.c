@@ -191,6 +191,26 @@ void lcd_show_time(void)
     lcd_str(day_names[day_of_week]);
 }
 
+void uart_show_time(void)
+{
+    uart_puts("Time: ");
+
+    uart_write((hour / 10) + '0');
+    uart_write((hour % 10) + '0');
+    uart_write(':');
+
+    uart_write((mmin / 10) + '0');
+    uart_write((mmin % 10) + '0');
+    uart_write(':');
+
+    uart_write((ssec / 10) + '0');
+    uart_write((ssec % 10) + '0');
+
+    uart_puts("  Day: ");
+    uart_puts(day_names[day_of_week]);
+    uart_puts("\r\n");
+}
+
 // --- TIMER0 ---
 void timer0_init(void)
 {
@@ -386,7 +406,8 @@ void bt_command_task(char c)
 
     if (c == 'l' || c == 'L')
     {
-        lcd_show_time();
+        // lcd_show_time();
+        uart_show_time();
         return;
     }
 
@@ -438,21 +459,28 @@ void bt_command_task(char c)
     rx_buffer[rx_index++] = c;
 
     // SET SCHEDULE
-    if ((rx_buffer[0] == 'f' || rx_buffer[0] == 'F') && rx_index == 8)
+    if ((rx_buffer[0] == 'f' || rx_buffer[0] == 'F') && rx_index == 9)
     {
         unsigned char n = rx_buffer[1] - '0';
+
         if (n >= 1 && n <= MAX_JADUAL)
         {
-            jadwal[n - 1].h = (rx_buffer[2] - '0') * 10 + (rx_buffer[3] - '0');
-            jadwal[n - 1].m = (rx_buffer[4] - '0') * 10 + (rx_buffer[5] - '0');
+            jadwal[n - 1].h =
+                (rx_buffer[2] - '0') * 10 + (rx_buffer[3] - '0');
+
+            jadwal[n - 1].m =
+                (rx_buffer[4] - '0') * 10 + (rx_buffer[5] - '0');
+
+            jadwal[n - 1].days =
+                (rx_buffer[6] - '0') * 100 +
+                (rx_buffer[7] - '0') * 10 +
+                (rx_buffer[8] - '0');
+
             jadwal[n - 1].a = 1;
-            jadwal[n - 1].days = ((rx_buffer[6] - '0') << 3) | (rx_buffer[7] - '0');
 
             lcd_cmd(0xC0);
             lcd_str("  SCHEDULE SET!   ");
             delay_ms(1000);
-            lcd_cmd(0xC0);
-            lcd_str("                  ");
         }
         rx_index = 0;
     }
