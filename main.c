@@ -3,7 +3,7 @@
 
 #define BTNAME "nmk322bt"
 #define BTPASS "0123"
-#define MAX_JADUAL 5
+#define MAX_JADUAL 3
 
 sbit SERVO = P1 ^ 1;
 sbit RS = P2 ^ 0;
@@ -461,10 +461,6 @@ void bt_command_task(char c)
     rx_index = 0;
   }
 }
-
-
-
-
 
 // --- MAIN ---
 void main(void)
