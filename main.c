@@ -31,7 +31,7 @@ unsigned char step_counter;
 bit update_lcd = 0;
 bit is_time_set = 0;
 unsigned char day_of_week = 0;
-bit fed_this_minute = 0;
+bit fed_min = 0;
 
 char rx_buffer[12];
 unsigned char rx_index = 0;
