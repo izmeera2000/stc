@@ -204,7 +204,7 @@ void uart_show_time(void)
   uart_write((ssec % 10) + '0');
 
   uart_puts("  Day: ");
-  uart_puts(day_of_week);
+  uart_write(day_of_week + '0');
   uart_puts("\r\n");
 }
 
