@@ -163,6 +163,8 @@ void lcd_init(void)
 void lcd_show_time(void)
 {
   char buf[9];
+  char cbuf[2];
+
   buf[0] = (hour / 10) + '0';
   buf[1] = (hour % 10) + '0';
   buf[2] = ':';
@@ -181,7 +183,6 @@ void lcd_show_time(void)
   lcd_cmd(0xC0);
   lcd_str("Day: ");
 
-  char cbuf[2];
   cbuf[0] = day_of_week + '0';
   cbuf[1] = '\0';
   lcd_str(cbuf);
@@ -406,7 +407,7 @@ void bt_set_time(char c)
 // --- BT COMMAND HANDLER ---
 void bt_command_task(char c)
 {
-  unsigned char i;
+  unsigned char i,d;
   char str_time[6];
 
   if (c == 'm' || c == 'M')
@@ -451,7 +452,7 @@ void bt_command_task(char c)
 
       // 🔹 SHOW DAYS HERE
       uart_puts("(");
-      unsigned char d = jadwal[i].days;
+       d = jadwal[i].days;
       uart_write((d / 100) + '0');        
       uart_write(((d / 10) % 10) + '0');  
       uart_write((d % 10) + '0');         
@@ -548,6 +549,10 @@ void bt_command_task(char c)
     rx_index = 0;
   }
 }
+
+
+
+
 
 // --- MAIN ---
 void main(void)
