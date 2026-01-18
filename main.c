@@ -42,6 +42,7 @@ unsigned char step_counter;
 bit update_lcd = 0;
 bit is_time_set = 0;
 unsigned char day_of_week = 0;
+static bit fed_this_minute = 0;
 
 const char *day_names[7] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
@@ -72,7 +73,6 @@ void uart_write(char c)
     ;
   TI = 0;
 }
- 
 
 // --- SERVO ---
 void servo_buka(void)
@@ -327,8 +327,7 @@ void auto_feed_task(void)
 
   update_lcd = 0;
   lcd_show_time();
-
-  static bit fed_this_minute = 0;
+  fed_this_minute = 0;
 
   if (ssec == 1)
     fed_this_minute = 0;
