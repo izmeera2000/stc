@@ -19,15 +19,14 @@ struct Schedule
     unsigned char h;
     unsigned char m;
     unsigned char a;
-
 };
 
 struct Schedule jadwal[MAX_JADUAL] = {
-    {8, 00,1},
-    {13, 30,1},
-    {20, 00,1},
-    {0, 0,0},
-    {0, 0,0}};
+    {8, 00, 1},
+    {13, 30, 1},
+    {20, 00, 1},
+    {0, 0, 0},
+    {0, 0, 0}};
 
 unsigned char total_jadual = 3;
 unsigned char hour = 0, mmin = 0, ssec = 0;
@@ -197,26 +196,21 @@ void timer0_isr(void) interrupt 1
     }
 }
 
-void main(void)
+void bluetooth_init(void)
 {
     unsigned int loop;
-    unsigned char i;
-    char temp_char;
-    char str_time[6];
-
-    uart_init();
-    timer0_init();
 
     uart_puts("AT+NAME" BTNAME "\r\n");
     for (loop = 0; loop < 60000; loop++)
         ;
+
     uart_puts("AT+PIN" BTPASS "\r\n");
     for (loop = 0; loop < 60000; loop++)
         ;
+}
 
-    lcd_init();
-    servo_tutup();
-
+void lcd_startup_screen(void)
+{
     lcd_cmd(0x80);
     lcd_str("PET FEEDER      ");
     lcd_cmd(0xC0);
@@ -234,6 +228,26 @@ void main(void)
     lcd_str("  SET TIME NOW:   ");
     lcd_cmd(0xC0);
     lcd_str("      24Hrs       ");
+}
+
+void system_startup(void)
+{
+    uart_init();
+    timer0_init();
+    lcd_init();
+    servo_tutup();
+
+    bluetooth_init();
+    lcd_startup_screen();
+}
+
+void main(void)
+{
+    unsigned char i;
+    char temp_char;
+    char str_time[6];
+
+    system_startup();
 
     while (1)
     {
@@ -248,7 +262,7 @@ void main(void)
             {
                 for (i = 0; i < total_jadual; i++)
                 {
-                    if ((hour == jadwal[i].h && mmin == jadwal[i].m) && jadwal[i].a == 1 )
+                    if ((hour == jadwal[i].h && mmin == jadwal[i].m) && jadwal[i].a == 1)
                     {
                         lcd_cmd(0xC0);
                         lcd_str(" AUTO: MAKAN!    ");
