@@ -162,31 +162,31 @@ void lcd_init(void)
 // --- SHOW TIME AND DAY ---
 void lcd_show_time(void)
 {
-  char buf[9];
-  char cbuf[2];
+    /* Line 1: Time */
+    lcd_cmd(0x80);
+    lcd_str("TIME: ");
 
-  buf[0] = (hour / 10) + '0';
-  buf[1] = (hour % 10) + '0';
-  buf[2] = ':';
-  buf[3] = (mmin / 10) + '0';
-  buf[4] = (mmin % 10) + '0';
-  buf[5] = ':';
-  buf[6] = (ssec / 10) + '0';
-  buf[7] = (ssec % 10) + '0';
-  buf[8] = '\0';
+    lcd_write((hour / 10) + '0');
+    lcd_write((hour % 10) + '0');
+    lcd_write(':');
 
-  lcd_cmd(0x80);
-  lcd_str("Time: ");
-  lcd_str(buf);
+    lcd_write((mmin / 10) + '0');
+    lcd_write((mmin % 10) + '0');
+    lcd_write(':');
 
-  lcd_str(cbuf);
-  lcd_cmd(0xC0);
-  lcd_str("Day: ");
+    lcd_write((ssec / 10) + '0');
+    lcd_write((ssec % 10) + '0');
 
-  cbuf[0] = day_of_week + '0';
-  cbuf[1] = '\0';
-  lcd_str(cbuf);
+    lcd_str("  ");   // clear leftover chars
+
+    /* Line 2: Day */
+    lcd_cmd(0xC0);
+    lcd_str("DAY: ");
+
+    lcd_write(day_of_week + '0');
+    lcd_str("   ");  // clear leftovers
 }
+
 
 void uart_show_time(void)
 {
@@ -478,36 +478,6 @@ void bt_command_task(char c)
     return;
 
   rx_buffer[rx_index++] = c;
-
-  // SET SCHEDULE
-  // --- SET SCHEDULE FORMAT ---
-  // To set a schedule via Bluetooth, send 9 ASCII characters:
-  //
-  // Command: fNHHMMDDD
-  //
-  // f        = literal 'f' (set schedule command)
-  // N        = schedule number (1..MAX_JADUAL)
-  // HH       = hour (00..23)
-  // MM       = minute (00..59)
-  // DDD      = day mask in decimal (0..127)
-  //
-  // Day mask bits:
-  // Bit 0 = Monday    (1)
-  // Bit 1 = Tuesday   (2)
-  // Bit 2 = Wednesday (4)
-  // Bit 3 = Thursday  (8)
-  // Bit 4 = Friday    (16)
-  // Bit 5 = Saturday  (32)
-  // Bit 6 = Sunday    (64)
-  //
-  // Examples:
-  // f10800127  -> Schedule 1, 08:00, Daily
-  // f2133021   -> Schedule 2, 13:30, Mon/Wed/Fri
-  // f3200096   -> Schedule 3, 20:00, Weekend (Sat/Sun)
-  //
-  // Notes:
-  // - Send ASCII only, no spaces or line endings.
-  // - Use 's' command to list all active schedules.
 
   if ((rx_buffer[0] == 'f' || rx_buffer[0] == 'F') && rx_index == 9)
   {
