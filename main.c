@@ -42,7 +42,7 @@ unsigned char step_counter;
 bit update_lcd = 0;
 bit is_time_set = 0;
 unsigned char day_of_week = 0;
-static bit fed_this_minute = 0;
+bit fed_this_minute = 0;
 
 const char *day_names[7] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
