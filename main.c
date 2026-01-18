@@ -1,5 +1,5 @@
-#include "mcu51.h"
-#include "uart.h"
+#include "inc/mcu51.h"
+#include "lib/uart.h"
 
 #define BTNAME "nmk322bt"
 #define BTPASS "0123"

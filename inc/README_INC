@@ -1,0 +1,29 @@
+-------------
+my1code51/inc
+-------------
+
+Modules in inc (basic headers/definitions):
+
+# my1defs.h
+  = basic/core definitions
+  = allows code to be compiled by both sdcc and Keil compilers
+    > custom macros to define sfr and sbit
+  = also contains port/pin addresses for original mcu51
+# my1macros.h
+  = useful macros
+# my1types.h
+  = typedefs for 8-/16-/32-bit unsigned integers
+# my1mcu51.h
+  = most common header for original mcu51
+    > equivalent to Keil's reg51.h
+  = includes my1defs.h , my1macros.h and my1types.h
+# mcu51.h
+  = a more generic name
+  = includes my1mcu51.h
+# my1stc51.h
+  = the header for stc51 microcontrollers
+    > contains stc-specific port/pin/sfr addresses
+  = includes my1mcu51.h
+# stc51.h
+  = a more generic name
+  = includes my1stc51.h
